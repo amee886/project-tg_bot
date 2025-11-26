@@ -1,0 +1,74 @@
+{
+  "events": [
+    {
+      "event_id": "evend id",
+      "title": "event title",
+      "start_time": "2025-11-26T09:00:00",
+      "end_time": "2025-11-26T18:00:00",
+      "organizer_id": "user_01",
+      "schedule": [
+        {
+          "talk_id": "TALK_UUID_01",
+          "speaker_id": "user_03",
+          "title": "talk title",
+          "start_time": "2025-11-26T10:00:00",
+          "end_time": "2025-11-26T11:00:00",
+          "is_live": false
+        }
+      ],
+      "active_talk_id": "TALK_UUID_01"
+    }
+  ],
+
+  "users": [
+    {
+      "user_id": "user_01",
+      "role": "organizer",
+      "full_name": "user name 01",
+      "telegram_id": "tg_id_01",
+      "events_joined": ["event_id"],
+      "notifications_enabled": true
+    },
+    {
+      "user_id": "user_02",
+      "role": "auditor",
+      "full_name": "user name 02",
+      "telegram_id": "tg_id_02",
+      "events_joined": ["event_id"],
+      "questions_sent": ["question_01"]
+    },
+    {
+      "user_id": "user_03",
+      "role": "speaker",
+      "full_name": "user name 03",
+      "telegram_id": "tg_id_03",
+      "events_joined": ["event_id"],
+      "speaker_in_talks": ["TALK_UUID_01"]
+    }
+  ],
+
+  "questions": [
+    {
+      "question_id": "question_01",
+      "event_id": "event_id",
+      "talk_id": "TALK_UUID_01",
+      "from_user_id": "user_02",
+      "to_speaker_id": "user_03",
+      "text": "question text",
+      "timestamp": "2025-11-26T10:15:00",
+      "status": "sent"
+    }
+  ],
+
+  "notifications": [
+    {
+      "notification_id": "notif_01",
+      "event_id": "event_id",
+      "type": "schedule_update",
+      "title": "notification title",
+      "message": "notification text",
+      "created_at": "2025-11-26T12:00:00",
+      "sent_to_users": ["user_01", "user_02", "user_03"]
+    }
+  ]
+}
