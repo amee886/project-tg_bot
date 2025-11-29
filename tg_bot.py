@@ -3,8 +3,8 @@ from telebot import types
 import json
 import time
 
-TOKEN = "8561959730:AAHSdkKe4v2hnS-YuDoacCpgJX9vVcEdt4s"
-ADMIN_ID = 1031327268
+TOKEN = ""
+ADMIN_ID = Id админа
 SPEAKER_PASSWORD = "SPEAK2024"
 
 bot = telebot.TeleBot(TOKEN)
