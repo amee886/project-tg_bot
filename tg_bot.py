@@ -2,16 +2,22 @@ import telebot
 from telebot import types
 import json
 import time
+from dotenv import load_dotenv
+import os
 
-TOKEN = ""
-ADMIN_ID = Id админа
-SPEAKER_PASSWORD = "SPEAK2024"
+
+load_dotenv()
+
+
+TOKEN = os.getenv("TOKEN")
+ADMIN_ID = int(os.getenv("ADMIN_ID"))
+SPEAKER_PASSWORD = os.getenv("SPEAKER_PASSWORD")
 
 bot = telebot.TeleBot(TOKEN)
 
 # --------------------- JSON ---------------------
 
-DB_PATH = "database.json"
+DB_PATH = os.getenv("DB_PATH")
 
 def load_db():
     try:
