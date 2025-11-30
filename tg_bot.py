@@ -71,6 +71,32 @@ def send_main_menu(chat_id, user_id):
     role = get_role(user_id)
     bot.send_message(chat_id, f"Меню обновлено. Ваша роль: *{role}*", parse_mode="Markdown", reply_markup=get_menu(role))
 
+
+def notify_all(text, exclude=None):
+    """Рассылка всем пользователям (кроме исключённого ID)."""
+    for uid in list(db.get("roles", {}).keys()):
+        if str(uid) == str(exclude):
+            continue
+        try:
+            bot.send_message(int(uid), text, parse_mode="Markdown")
+        except Exception:
+            pass
+
+
+def send_broadcast_message(message):
+    text = message.text
+    notify_all(f"Сообщение от организатора:\n\n{text}", exclude=message.from_user.id)
+    bot.send_message(message.chat.id, "✅ Рассылка отправлена!")
+
+
+def get_current_speaker():
+    now = int(time.time())
+    for e in db["events"]:
+        if e["start_time"] <= now <= e["end_time"]:
+            return e["speaker_id"], e["title"]
+    return None, None
+
+
 # --------------------- MENUS ---------------------
 
 def menu_user():
@@ -192,6 +218,7 @@ def create_event_step3(message, title):
     })
     save_db()
     bot.send_message(message.chat.id, "✔ Мероприятие создано!", reply_markup=get_menu(get_role(message.from_user.id)))
+    notify_all(f"Новое мероприятие добавлено!\n\n*{title}*\n{description}", exclude=message.from_user.id)
 
 # --------------------- EVENTS LIST ---------------------
 
@@ -306,6 +333,7 @@ def build_admin_panel_kb():
     kb.add(types.InlineKeyboardButton("Спикеры", callback_data="admin_speakers"))
     kb.add(types.InlineKeyboardButton("Мероприятия", callback_data="admin_events"))
     kb.add(types.InlineKeyboardButton("Вопросы", callback_data="admin_questions"))
+    kb.add(types.InlineKeyboardButton("Рассылка", callback_data="admin_broadcast"))
     kb.add(types.InlineKeyboardButton("🔙 Назад", callback_data="admin_back"))
     return kb
 
@@ -371,6 +399,13 @@ def admin_menu(call):
             kb.add(types.InlineKeyboardButton(f"{'✅' if q.get('answer') else '❓'} Q#{i+1}", callback_data=f"q_{i}"))
         kb.add(types.InlineKeyboardButton("🔙 Назад", callback_data="admin_back"))
         return bot.edit_message_text("Вопросы:", chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup=kb)
+
+    # BROADCAST MESSAGE
+    if action == "broadcast":
+        bot.answer_callback_query(call.id)
+        bot.send_message(call.message.chat.id, "Введите текст рассылки:")
+        bot.register_next_step_handler(call.message, send_broadcast_message)
+        return
 
 @bot.callback_query_handler(func=lambda c: c.data == "admin_back")
 def admin_back(call):
@@ -465,6 +500,7 @@ def admin_actions(call):
         if 0 <= idx < len(events):
             ev = events.pop(idx)
             save_db()
+            notify_all(f"Мероприятие удалено:\n\n❌ *{ev['title']}*")
             bot.answer_callback_query(call.id, f"Мероприятие удалено: {ev['title']}")
             kb = types.InlineKeyboardMarkup()
             for i, e in enumerate(events):
